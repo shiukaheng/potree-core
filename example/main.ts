@@ -1,4 +1,4 @@
-import { AmbientLight, BoxGeometry, Euler, Matrix4, Mesh, MeshBasicMaterial, PerspectiveCamera, Raycaster, Scene, SphereGeometry, Vector2, Vector3, WebGLRenderer } from 'three';
+import { AmbientLight, BoxGeometry, Euler, Group, Matrix4, Mesh, MeshBasicMaterial, PerspectiveCamera, Raycaster, Scene, SphereGeometry, Vector2, Vector3, WebGLRenderer } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { VRButton } from 'three/examples/jsm/webxr/VRButton.js';
 import { XRControllerModelFactory } from 'three/examples/jsm/webxr/XRControllerModelFactory.js';
@@ -6,6 +6,7 @@ import { PointCloudOctree, Potree } from '../source';
 
 document.body.onload = function() {
     const potree = new Potree();
+	potree.pointBudget = 500000
     let pointClouds: PointCloudOctree[] = [];
 
     // three.js
@@ -33,47 +34,20 @@ document.body.onload = function() {
 
     // Enable XR
     renderer.xr.enabled = true;
-
     scene.add(new AmbientLight(0xffffff));
-
-    // const controls = new OrbitControls(camera, canvas);
     camera.position.z = 0;
-
-    const raycaster = new Raycaster();
-    // @ts-ignore
-    raycaster.params.Points.threshold = 1e-2;
-    const normalized = new Vector2();
-
-    canvas.onmousemove = function(event) {
-        normalized.set(event.clientX / canvas.width * 2 - 1, -(event.clientY / canvas.height) * 2 + 1);
-        raycaster.setFromCamera(normalized, camera);
-    };
-
-    canvas.ondblclick = function() {
-        const intersects = raycaster.intersectObject(scene, true);
-
-        if (intersects.length > 0) {
-            const geometry = new SphereGeometry(0.2, 32, 32);
-            const material = new MeshBasicMaterial({color: Math.random() * 0xAA4444});
-            const sphere = new Mesh(geometry, material);
-            sphere.position.copy(intersects[0].point);
-            scene.add(sphere);
-        }
-    };
-
-    // loadPointCloud('/data/lion_takanawa/', 'cloud.js', new Vector3(-4, -2, 5), new Euler(-Math.PI / 2, 0, 0));
-    loadPointCloud('/', 'metadata.json', new Vector3(-21, -1, -6), new Euler(-Math.PI / 2, 0, -Math.PI / 2), new Vector3(1, 1, 1));
+    loadPointCloud('/', 'metadata.json');
 
     function loadPointCloud(baseUrl: string, url: string, position?: Vector3, rotation?: Euler, scale?: Vector3) {
         potree.loadPointCloud(url, url => `${baseUrl}${url}`).then(function(pco: PointCloudOctree) {
             pco.material.size = 1.0;
-            pco.material.shape = 2;
+            pco.material.shape = 0;
             pco.material.inputColorEncoding = 1;
             pco.material.outputColorEncoding = 1;
 
             if (position) { pco.position.copy(position); }
             if (rotation) { pco.rotation.copy(rotation); }
-            // if (scale) { pco.scale.copy(scale); }
+            if (scale) { pco.scale.copy(scale); }
 
             console.log('Pointcloud file loaded', pco);
             pco.showBoundingBox = false;
@@ -94,12 +68,19 @@ document.body.onload = function() {
 
             scene.add(mesh);
 
-            add(pco);
+            addToUpdater(pco);
+
+			const group = new Group();
+			group.add(pco);
+
+			scene.add(group);
+			scene.rotation.set(-Math.PI/2, 0, -Math.PI/2);
+			scene.position.set(0, 3, 0)
         });
     }
 
-    function add(pco: PointCloudOctree): void {
-        scene.add(pco);
+    function addToUpdater(pco: PointCloudOctree): void {
+        // scene.add(pco);
         pointClouds.push(pco);
     }
 
@@ -114,23 +95,6 @@ document.body.onload = function() {
 
     // WebXR setup
     document.body.appendChild(VRButton.createButton(renderer));
-
-    // VR Controllers
-    const controllerModelFactory = new XRControllerModelFactory();
-
-    const controller1 = renderer.xr.getController(0);
-    scene.add(controller1);
-
-    const controllerGrip1 = renderer.xr.getControllerGrip(0);
-    controllerGrip1.add(controllerModelFactory.createControllerModel(controllerGrip1));
-    scene.add(controllerGrip1);
-
-    const controller2 = renderer.xr.getController(1);
-    scene.add(controller2);
-
-    const controllerGrip2 = renderer.xr.getControllerGrip(1);
-    controllerGrip2.add(controllerModelFactory.createControllerModel(controllerGrip2));
-    scene.add(controllerGrip2);
 
     function animate() {
         renderer.setAnimationLoop(render);
