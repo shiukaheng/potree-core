@@ -13,6 +13,8 @@ document.body.onload = function() {
     const scene = new Scene();
     const camera = new PerspectiveCamera(60, 1, 0.1, 1000);
 
+	// Add style for body so it would be black
+	document.body.style.backgroundColor = 'black';
     const canvas = document.createElement('canvas');
     canvas.style.position = 'absolute';
     canvas.style.top = '0px';
@@ -29,7 +31,7 @@ document.body.onload = function() {
         premultipliedAlpha: true,
         antialias: true,
         preserveDrawingBuffer: false,
-        powerPreference: 'high-performance'
+        powerPreference: 'high-performance',
     });
 
     // Enable XR
@@ -80,7 +82,6 @@ document.body.onload = function() {
     }
 
     function addToUpdater(pco: PointCloudOctree): void {
-        // scene.add(pco);
         pointClouds.push(pco);
     }
 

@@ -610,4 +610,12 @@ void main() {
 	#if defined(output_color_encoding_linear) && defined(input_color_encoding_sRGB)
 		vColor = fromLinear(vColor);
 	#endif
+
+	// Exponential fog (black)
+	vec4 fogColor = vec4(0.0, 0.0, 0.0, 1.0);
+	float fogDensity = 0.4;
+	float z = gl_Position.w;
+	float d = z * fogDensity;
+	float fogFactor = 1.0 - exp2(-d * d);
+	vColor = mix(vColor, fogColor, fogFactor);
 }
