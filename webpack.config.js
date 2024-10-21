@@ -41,4 +41,9 @@ export default {
 			}
 		],
 	},
+	devServer: {
+		static: {
+			directory: path.join(path.dirname(new URL(import.meta.url).pathname), 'public'),
+		},
+	}
 };
