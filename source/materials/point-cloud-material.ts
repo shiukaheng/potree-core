@@ -104,6 +104,15 @@ export interface IPointCloudMaterialUniforms {
   highlightedPointColor: IUniform<Vector4>;
   enablePointHighlighting: IUniform<boolean>;
   highlightedPointScale: IUniform<number>;
+  // Effects
+  time: IUniform<number>;
+  sigmoid_alpha: IUniform<number>;
+  sigmoid_beta: IUniform<number>;
+  wind_scale: IUniform<number>;
+  displacement_vector: IUniform<Vector3>;
+  wind_vector: IUniform<Vector3>;
+  global_alpha: IUniform<number>;
+  highlight_factor: IUniform<number>;
 }
 
 const TREE_TYPE_DEFS = {
@@ -239,7 +248,16 @@ export class PointCloudMaterial extends RawShaderMaterial
 		highlightedPointCoordinate: makeUniform('fv', new Vector3()),
 		highlightedPointColor: makeUniform('fv', DEFAULT_HIGHLIGHT_COLOR.clone()),
 		enablePointHighlighting: makeUniform('b', true),
-		highlightedPointScale: makeUniform('f', 2.0)
+		highlightedPointScale: makeUniform('f', 2.0),
+		// Effects
+		time: makeUniform('f', 0),
+		sigmoid_alpha: makeUniform('f', 10),
+		sigmoid_beta: makeUniform('f', 0.2),
+		wind_scale: makeUniform('f', 0.3),
+		displacement_vector: makeUniform('v3', new Vector3(0,0.2,0)),
+		wind_vector: makeUniform('v3', new Vector3(0.5,0,0)),
+		global_alpha: makeUniform('f', 1),
+		highlight_factor: makeUniform('f', 0.1),
 	};
 
   @uniform('bbSize') bbSize!: [number, number, number];
@@ -316,6 +334,24 @@ export class PointCloudMaterial extends RawShaderMaterial
 
   @uniform('highlightedPointScale') highlightedPointScale!: number;
 
+  // Effects
+
+  @uniform('time') time!: number;
+
+  @uniform('sigmoid_alpha') sigmoid_alpha!: number;
+
+  @uniform('sigmoid_beta') sigmoid_beta!: number;
+
+  @uniform('wind_scale') wind_scale!: number;
+
+  @uniform('displacement_vector') displacement_vector!: Vector3;
+
+  @uniform('wind_vector') wind_vector!: Vector3;
+
+  @uniform('global_alpha') global_alpha!: number;
+
+  @uniform('highlight_factor') highlight_factor!: number;
+
   // Declare PointCloudMaterial attributes that need shader updates upon change, and set default values.
   @requiresShaderUpdate() useClipBox: boolean = false;
 
@@ -357,6 +393,8 @@ export class PointCloudMaterial extends RawShaderMaterial
 
   newFormat: boolean;
 
+  private startTime: number;
+
   constructor(parameters: Partial<IPointCloudMaterialParameters> = {}) 
   {
   	super();
@@ -383,6 +421,9 @@ export class PointCloudMaterial extends RawShaderMaterial
 	
   	// throw new Error('Not implemented');
   	// this.extensions.fragDepth = true;
+
+	// Save the current time using performance.now() to animate the shader
+	this.startTime = performance.now();
 
   	this.updateShaderSource();
   }
@@ -715,6 +756,8 @@ export class PointCloudMaterial extends RawShaderMaterial
   	{
   		this.updateVisibilityTextureData(visibleNodes);
   	}
+	// Update the time uniform to animate the shader
+	this.time = (performance.now() - this.startTime) / 1000;
   }
 
   private updateVisibilityTextureData(nodes: PointCloudOctreeNode[]) 
