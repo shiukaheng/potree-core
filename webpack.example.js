@@ -36,12 +36,6 @@ export default {
 		]),
 	},
 	plugins: [
-		new CopyPlugin({
-			patterns: [{
-				from: "data",
-				to: "data"
-			}]
-		}),
 		new HtmlPlugin()
 	],
 };

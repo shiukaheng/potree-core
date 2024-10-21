@@ -38,7 +38,7 @@ document.body.onload = function() {
     renderer.xr.enabled = true;
     scene.add(new AmbientLight(0xffffff));
     camera.position.z = 0;
-    loadPointCloud('/', 'metadata.json');
+    loadPointCloud('duk_kee/', 'metadata.json');
 
     function loadPointCloud(baseUrl: string, url: string, position?: Vector3, rotation?: Euler, scale?: Vector3) {
         potree.loadPointCloud(url, url => `${baseUrl}${url}`).then(function(pco: PointCloudOctree) {
@@ -57,19 +57,6 @@ document.body.onload = function() {
             const box = pco.pcoGeometry.boundingBox;
             const size = box.getSize(new Vector3());
 
-            const geometry = new BoxGeometry(size.x, size.y, size.z);
-            const material = new MeshBasicMaterial({color: 0xFF0000, wireframe: true});
-            const mesh = new Mesh(geometry, material);
-            mesh.position.copy(pco.position);
-            mesh.scale.copy(pco.scale);
-            mesh.rotation.copy(pco.rotation);
-            mesh.raycast = () => false;
-
-            size.multiplyScalar(0.5);
-            mesh.position.add(new Vector3(size.x, size.y, -size.z));
-
-            scene.add(mesh);
-
             addToUpdater(pco);
 
 			const group = new Group();
@@ -77,7 +64,7 @@ document.body.onload = function() {
 
 			scene.add(group);
 			scene.rotation.set(-Math.PI/2, 0, -Math.PI/2);
-			scene.position.set(0, 3, 0)
+			scene.position.set(-3.3, 3.38, 3.3)
         });
     }
 

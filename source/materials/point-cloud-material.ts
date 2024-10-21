@@ -251,11 +251,11 @@ export class PointCloudMaterial extends RawShaderMaterial
 		highlightedPointScale: makeUniform('f', 2.0),
 		// Effects
 		time: makeUniform('f', 0),
-		sigmoid_alpha: makeUniform('f', 10),
-		sigmoid_beta: makeUniform('f', 0.2),
-		wind_scale: makeUniform('f', 0.3),
-		displacement_vector: makeUniform('v3', new Vector3(0,0.2,0)),
-		wind_vector: makeUniform('v3', new Vector3(0.5,0,0)),
+		sigmoid_alpha: makeUniform('f', 4),
+		sigmoid_beta: makeUniform('f', 0.6),
+		wind_scale: makeUniform('f', 3.),
+		displacement_vector: makeUniform('v3', new Vector3(0,0.3,0)),
+		wind_vector: makeUniform('v3', new Vector3(0.1,0,0.1)),
 		global_alpha: makeUniform('f', 1),
 		highlight_factor: makeUniform('f', 0.1),
 	};
