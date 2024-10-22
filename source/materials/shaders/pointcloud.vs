@@ -533,10 +533,13 @@ vec3 calculateDistortion(vec3 position, float intensity, float time, vec3 wind_v
 
 void main() {
 	vec4 mPosition = modelMatrix * vec4(position, 1.0);
-	vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+	// vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
 
 	vec3 distortion = calculateDistortion(mPosition.xyz, confidence, time, wind_vector, wind_scale, displacement_vector, sigmoid_alpha, sigmoid_beta);
-	mvPosition.xyz += distortion;
+	// mvPosition.xyz += distortion;
+	mPosition.xyz += distortion;
+	// Apply view matrix to distorted position to get mvPosition
+	vec4 mvPosition = viewMatrix * mPosition;
 	gl_Position = projectionMatrix * mvPosition;
 
 	#if defined(color_type_phong) && (MAX_POINT_LIGHTS > 0 || MAX_DIR_LIGHTS > 0) || defined(paraboloid_point_shape)
