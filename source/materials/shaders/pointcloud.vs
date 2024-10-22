@@ -533,10 +533,13 @@ vec3 calculateDistortion(vec3 position, float intensity, float time, vec3 wind_v
 
 void main() {
 	vec4 mPosition = modelMatrix * vec4(position, 1.0);
-	vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+	// vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
 
 	vec3 distortion = calculateDistortion(mPosition.xyz, confidence, time, wind_vector, wind_scale, displacement_vector, sigmoid_alpha, sigmoid_beta);
-	mvPosition.xyz += distortion;
+	// mvPosition.xyz += distortion;
+	mPosition.xyz += distortion;
+	// Apply view matrix to distorted position to get mvPosition
+	vec4 mvPosition = viewMatrix * mPosition;
 	gl_Position = projectionMatrix * mvPosition;
 
 	#if defined(color_type_phong) && (MAX_POINT_LIGHTS > 0 || MAX_DIR_LIGHTS > 0) || defined(paraboloid_point_shape)
@@ -730,21 +733,21 @@ void main() {
 	#endif
 
 	// Use the length of distortion to add aextra color to the point
-	vec4 highlightColor = vec4(1.0, 1.0, 1.0, 1.0);
+	vec4 highlightColor = vec4(0.7, 0.6, 0.3, 1.0);
 	float distortionLength = length(distortion);
 	// Scale distortionLength using min and max, to rescale it to the range [0, 1]
 	float minDistortionLength = 0.0;
-	float maxDistortionLength = 0.1;
+	float maxDistortionLength = 0.2;
 	float scaledDistortionLength = (distortionLength - minDistortionLength) / (maxDistortionLength - minDistortionLength);
 	// Apply a power function to make the scaling more pronounced
-	scaledDistortionLength = pow(scaledDistortionLength, 2.0);
+	scaledDistortionLength = pow(scaledDistortionLength, 3.0);
 	// Use the scaled distortion length to interpolate between the original color and the highlight color
 	// Remember color is vec4
 	vColor = mix(vColor, highlightColor, scaledDistortionLength);
 
 	// Exponential fog (black)
 	vec4 fogColor = vec4(0.0, 0.0, 0.0, 1.0);
-	float fogDensity = 0.4;
+	float fogDensity = 0.15;
 	float z = gl_Position.w;
 	float d = z * fogDensity;
 	float fogFactor = 1.0 - exp2(-d * d);

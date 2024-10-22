@@ -38,7 +38,7 @@ document.body.onload = function() {
     renderer.xr.enabled = true;
     scene.add(new AmbientLight(0xffffff));
     camera.position.z = 0;
-    loadPointCloud('duk_kee/', 'metadata.json');
+    loadPointCloud('state_arch/', 'metadata.json');
 
     function loadPointCloud(baseUrl: string, url: string, position?: Vector3, rotation?: Euler, scale?: Vector3) {
         potree.loadPointCloud(url, url => `${baseUrl}${url}`).then(function(pco: PointCloudOctree) {
@@ -64,7 +64,7 @@ document.body.onload = function() {
 
 			scene.add(group);
 			scene.rotation.set(-Math.PI/2, 0, -Math.PI/2);
-			scene.position.set(-3.3, 3.38, 3.3)
+			scene.position.set(0, 0.45, -2)
         });
     }
 
