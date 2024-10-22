@@ -2,7 +2,7 @@ import { PlaneGeometry, Points, ShaderMaterial, Vector3 } from "three";
 
 export function createAnimatedPointPlane() {
     // Step 1: Create a plane geometry
-    const planeGeometry = new PlaneGeometry(100, 70, 300, 300);
+    const planeGeometry = new PlaneGeometry(100, 100, 200, 200);
     planeGeometry.rotateZ(0.42);
     // Step 2: Create a custom shader material
     const pointShaderMaterial = new ShaderMaterial({
@@ -153,7 +153,7 @@ export function createAnimatedPointPlane() {
             uTime: { value: 0.0 }, // Time uniform to animate points
             wind_vector: { value: new Vector3(1.0, 0.0, 0.0) }, // Wind vector
             wind_scale: { value: 0.5 }, // Wind scale factor
-            displacement_vector: { value: new Vector3(0.0, 0.0, 2.0) }, // Displacement direction
+            displacement_vector: { value: new Vector3(0.0, 0.0, 1.0) }, // Displacement direction
             sigmoid_alpha: { value: 1.0 }, // Sigmoid alpha for distortion scaling
             sigmoid_beta: { value: 0.5 }  // Sigmoid beta for distortion scaling
         }
