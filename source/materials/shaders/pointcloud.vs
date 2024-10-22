@@ -733,14 +733,14 @@ void main() {
 	#endif
 
 	// Use the length of distortion to add aextra color to the point
-	vec4 highlightColor = vec4(0.7, 0.6, 0.3, 1.0);
+	vec4 highlightColor = vec4(1.0, 1.0, 1.0, 1.0);
 	float distortionLength = length(distortion);
 	// Scale distortionLength using min and max, to rescale it to the range [0, 1]
 	float minDistortionLength = 0.0;
 	float maxDistortionLength = 0.2;
 	float scaledDistortionLength = (distortionLength - minDistortionLength) / (maxDistortionLength - minDistortionLength);
 	// Apply a power function to make the scaling more pronounced
-	scaledDistortionLength = pow(scaledDistortionLength, 3.0);
+	scaledDistortionLength = pow(scaledDistortionLength, 1.0);
 	// Use the scaled distortion length to interpolate between the original color and the highlight color
 	// Remember color is vec4
 	vColor = mix(vColor, highlightColor, scaledDistortionLength);
