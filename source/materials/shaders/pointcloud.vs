@@ -747,7 +747,7 @@ void main() {
 
 	// Exponential fog (black)
 	vec4 fogColor = vec4(0.0, 0.0, 0.0, 1.0);
-	float fogDensity = 0.15;
+	float fogDensity = 0.03;
 	float z = gl_Position.w;
 	float d = z * fogDensity;
 	float fogFactor = 1.0 - exp2(-d * d);

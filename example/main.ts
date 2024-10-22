@@ -7,7 +7,7 @@ import { PointCloudOctree, Potree } from '../source';
 document.body.onload = function() {
     const potree = new Potree();
 	potree.pointBudget = 500000
-    let pointClouds: PointCloudOctree[] = [];
+    let pointClouds: { [key: string]: PointCloudOctree } = {};
 
     // three.js
     const scene = new Scene();
@@ -38,10 +38,23 @@ document.body.onload = function() {
     renderer.xr.enabled = true;
     scene.add(new AmbientLight(0xffffff));
     camera.position.z = 0;
-    loadPointCloud('state_arch/', 'metadata.json');
 
-    function loadPointCloud(baseUrl: string, url: string, position?: Vector3, rotation?: Euler, scale?: Vector3) {
-        potree.loadPointCloud(url, url => `${baseUrl}${url}`).then(function(pco: PointCloudOctree) {
+    // Load each point cloud individually and store it in the pointClouds object
+    loadPointCloud('boat', 'jumbo/boat/');
+    loadPointCloud('dock_1', 'jumbo/dock_1/');
+    loadPointCloud('floating_ring', 'jumbo/floating_ring/');
+    loadPointCloud('kitchen', 'jumbo/kitchen/');
+    loadPointCloud('platform', 'jumbo/platform/');
+    loadPointCloud('sign_r', 'jumbo/sign_r/');
+    loadPointCloud('boat_2', 'jumbo/boat_2/');
+    loadPointCloud('dock_2', 'jumbo/dock_2/');
+    loadPointCloud('jumbo', 'jumbo/jumbo/');
+    loadPointCloud('misc', 'jumbo/misc/');
+    loadPointCloud('sign_l', 'jumbo/sign_l/');
+    loadPointCloud('tai_pak', 'jumbo/tai_pak/');
+
+    function loadPointCloud(name: string, baseUrl: string, position?: Vector3, rotation?: Euler, scale?: Vector3) {
+        potree.loadPointCloud('metadata.json', url => `${baseUrl}${url}`).then(function(pco: PointCloudOctree) {
             pco.material.size = 1.0;
             pco.material.shape = 0;
             pco.material.inputColorEncoding = 1;
@@ -51,34 +64,36 @@ document.body.onload = function() {
             if (rotation) { pco.rotation.copy(rotation); }
             if (scale) { pco.scale.copy(scale); }
 
-            console.log('Pointcloud file loaded', pco);
+            console.log(`Pointcloud ${name} loaded`, pco);
             pco.showBoundingBox = false;
 
             const box = pco.pcoGeometry.boundingBox;
             const size = box.getSize(new Vector3());
 
-            addToUpdater(pco);
+            // Store each point cloud in the pointClouds object with its corresponding name
+            pointClouds[name] = pco;
 
 			const group = new Group();
 			group.add(pco);
 
 			scene.add(group);
 			scene.rotation.set(-Math.PI/2, 0, -Math.PI/2);
-			scene.position.set(0, 0.45, -2)
+			scene.position.set(2, 0, 0);
         });
     }
 
     function addToUpdater(pco: PointCloudOctree): void {
-        pointClouds.push(pco);
+        // Add to point clouds updater
     }
 
     function unload(): void {
-        pointClouds.forEach(pco => {
+        Object.keys(pointClouds).forEach(key => {
+            const pco = pointClouds[key];
             scene.remove(pco);
             pco.dispose();
         });
 
-        pointClouds = [];
+        pointClouds = {};
     }
 
     // WebXR setup
@@ -89,7 +104,13 @@ document.body.onload = function() {
     }
 
     function render() {
-        potree.updatePointClouds(pointClouds, camera, renderer);
+        // Update each point cloud independently if needed
+        Object.keys(pointClouds).forEach(key => {
+            const pco = pointClouds[key];
+            // You can animate each pco object individually here
+        });
+
+        potree.updatePointClouds(Object.values(pointClouds), camera, renderer);
         renderer.render(scene, camera);
     }
 
