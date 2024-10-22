@@ -732,21 +732,21 @@ void main() {
 		vColor = fromLinear(vColor);
 	#endif
 
-	// Use the length of distortion to add aextra color to the point
-	vec4 highlightColor = vec4(1.0, 1.0, 1.0, 1.0);
-	float distortionLength = length(distortion);
-	// Scale distortionLength using min and max, to rescale it to the range [0, 1]
-	float minDistortionLength = 0.0;
-	float maxDistortionLength = 0.2;
-	float scaledDistortionLength = (distortionLength - minDistortionLength) / (maxDistortionLength - minDistortionLength);
-	// Apply a power function to make the scaling more pronounced
-	scaledDistortionLength = pow(scaledDistortionLength, 1.0);
-	// Use the scaled distortion length to interpolate between the original color and the highlight color
-	// Remember color is vec4
-	vColor = mix(vColor, highlightColor, scaledDistortionLength);
+	// // Use the length of distortion to add aextra color to the point
+	// vec4 highlightColor = vec4(1.0, 1.0, 1.0, 1.0);
+	// float distortionLength = length(distortion);
+	// // Scale distortionLength using min and max, to rescale it to the range [0, 1]
+	// float minDistortionLength = 0.0;
+	// float maxDistortionLength = 0.2;
+	// float scaledDistortionLength = (distortionLength - minDistortionLength) / (maxDistortionLength - minDistortionLength);
+	// // Apply a power function to make the scaling more pronounced
+	// scaledDistortionLength = pow(scaledDistortionLength, 1.0);
+	// // Use the scaled distortion length to interpolate between the original color and the highlight color
+	// // Remember color is vec4
+	// vColor = mix(vColor, highlightColor, scaledDistortionLength);
 
 	// Exponential fog (black)
-	vec4 fogColor = vec4(0.0, 0.0, 0.0, 1.0);
+	vec4 fogColor = vec4(1, 1, 1, 1.0);
 	float fogDensity = 0.03;
 	float z = gl_Position.w;
 	float d = z * fogDensity;

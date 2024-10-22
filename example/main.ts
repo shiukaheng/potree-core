@@ -1,8 +1,11 @@
-import { AmbientLight, BoxGeometry, Euler, Group, Matrix4, Mesh, MeshBasicMaterial, PerspectiveCamera, Raycaster, Scene, SphereGeometry, Vector2, Vector3, WebGLRenderer } from 'three';
+import { AmbientLight, BoxGeometry, Color, Euler, Group, Matrix4, Mesh, MeshBasicMaterial, PerspectiveCamera, Raycaster, Scene, SphereGeometry, Vector2, Vector3, WebGLRenderer } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { VRButton } from 'three/examples/jsm/webxr/VRButton.js';
 import { XRControllerModelFactory } from 'three/examples/jsm/webxr/XRControllerModelFactory.js';
 import { PointCloudOctree, Potree } from '../source';
+import { PlaneGeometry, Points, ShaderMaterial, BufferGeometry, Float32BufferAttribute } from 'three';
+import { createAnimatedPointPlane } from './animatedPlane';
+import * as THREE from 'three';
 
 document.body.onload = function() {
     const potree = new Potree();
@@ -11,7 +14,14 @@ document.body.onload = function() {
 
     // three.js
     const scene = new Scene();
+	// scene.background = new Color(0xc1d6d1);
     const camera = new PerspectiveCamera(60, 1, 0.1, 1000);
+	
+	// Apply background color using large double-sided cube
+	const geometry = new BoxGeometry(100, 100, 100);
+	const material = new MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide });
+	const cube = new Mesh(geometry, material);
+	scene.add(cube);
 
 	// Add style for body so it would be black
 	document.body.style.backgroundColor = 'black';
@@ -33,6 +43,7 @@ document.body.onload = function() {
         preserveDrawingBuffer: false,
         powerPreference: 'high-performance',
     });
+
 
     // Enable XR
     renderer.xr.enabled = true;
@@ -77,14 +88,20 @@ document.body.onload = function() {
 			group.add(pco);
 
 			scene.add(group);
-			scene.rotation.set(-Math.PI/2, 0, -Math.PI/2);
-			scene.position.set(2, 0, 0);
+			scene.rotation.set(-Math.PI/2, 0, -Math.PI/2 + 0.05);
+			scene.position.set(8, 0, 5);
         });
     }
 
     function addToUpdater(pco: PointCloudOctree): void {
         // Add to point clouds updater
     }
+
+	// Function to create a plane rendered as points
+	
+
+	const pointPlane = createAnimatedPointPlane();
+	scene.add(pointPlane);
 
     function unload(): void {
         Object.keys(pointClouds).forEach(key => {
@@ -103,11 +120,57 @@ document.body.onload = function() {
         renderer.setAnimationLoop(render);
     }
 
+	const startTime = performance.now();
+
     function render() {
+		// Update time in the shader
+		const elapsedTime = (performance.now() - startTime) / 1000;
+		pointPlane.material.uniforms.uTime.value = elapsedTime;
+
         // Update each point cloud independently if needed
         Object.keys(pointClouds).forEach(key => {
             const pco = pointClouds[key];
-            // You can animate each pco object individually here
+			if (key === 'boat') {
+				pco.rotation.x = Math.sin(Date.now() / 1000 + 50) / 50;
+				pco.rotation.y = Math.cos(Date.now() / 1000 + 50) / 50;
+				pco.rotation.z = Math.cos(Date.now() / 1000 + 30) / 50;
+			} else if (key === 'boat_2') {
+				pco.rotation.x = Math.sin(Date.now() / 1000 + 37) / 50;
+				pco.rotation.y = Math.cos(Date.now() / 1000 + 50) / 50;
+				pco.rotation.z = Math.cos(Date.now() / 1000 + 23) / 50;
+			} else if (key === 'kitchen') {
+				pco.rotation.x = Math.sin(Date.now() / 5000 + 76) / 60;
+				pco.rotation.y = Math.cos(Date.now() / 5000 + 50) / 60;
+				pco.rotation.z = Math.cos(Date.now() / 4000 + 21) / 50;
+			} else if (key === 'sign_l') {
+				pco.rotation.z = Math.sin(Date.now() / 4000 + 50) / 200;
+				pco.rotation.x = Math.cos(Date.now() / 4000 + 50) / 500;
+				pco.rotation.y = Math.cos(Date.now() / 4000 + 50) / 500;
+			} else if (key === 'sign_r') { // Random rotation, different from above. Needs to be different for every object from this point on. e.g. 1645.8 > 1000
+				pco.rotation.z = Math.sin(Date.now() / 4000 + 389) / 200;
+				pco.rotation.x = Math.cos(Date.now() / 4000 + 389) / 500;
+				pco.rotation.y = Math.cos(Date.now() / 4000 + 389) / 500;
+			} else if (key === 'platform') {
+				pco.rotation.x = Math.sin(Date.now() / 2000 + 50) / 70;
+				pco.rotation.y = Math.cos(Date.now() / 2000 + 50) / 70;
+				pco.rotation.z = Math.cos(Date.now() / 2000 + 50) / 100;
+			} else if (key === 'tai_pak') {
+				pco.rotation.x = Math.sin(Date.now() / 4000 + 50) / 400 + Math.sin(Date.now() / 2000 + 100) / 600;
+				pco.rotation.y = Math.cos(Date.now() / 4000 + 50) / 400 + Math.cos(Date.now() / 2000 + 200) / 600;
+				pco.rotation.z = Math.cos(Date.now() / 4000 + 50) / 400 + Math.sin(Date.now() / 2000 + 300) / 600;
+			} else if (key === 'misc') {
+				pco.rotation.x = Math.sin(Date.now() / 2000 + 350) / 70;
+				pco.rotation.y = Math.cos(Date.now() / 2000 + 10) / 70;
+				pco.rotation.z = Math.cos(Date.now() / 2000 + 20) / 100;
+			} else if (key === 'floating_ring') {
+				pco.rotation.x = Math.sin(Date.now() / 2000 + 50) / 100;
+				pco.rotation.y = Math.cos(Date.now() / 2000 + 50) / 100;
+				pco.rotation.z = Math.cos(Date.now() / 2000 + 50) / 100;
+			} else if (key === 'jumbo') {
+				pco.rotation.x = Math.sin(Date.now() / 5000 + 50) / 700;
+				pco.rotation.y = Math.cos(Date.now() / 5000 + 50) / 700;
+				pco.rotation.z = Math.cos(Date.now() / 5000 + 50) / 700;
+			}
         });
 
         potree.updatePointClouds(Object.values(pointClouds), camera, renderer);
